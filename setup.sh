@@ -61,6 +61,9 @@ _prompt_for_env() {
     read -p "Enter your Bot Token: " BOT_TOKEN
     while true; do
         read -p "Enter your Marzneshin Panel URL (e.g., https://panel.example.com): " PANEL_URL
+        PANEL_URL=$(echo "$PANEL_URL" | sed -E 's#(/dashboard/?)$##')
+        PANEL_URL=$(echo "$PANEL_URL" | sed 's#/$##')
+
         if [[ $PANEL_URL =~ ^https?:// ]]; then
             break
         else
@@ -226,7 +229,9 @@ _manage_admins() {
                 chatids+=("$CHAT_IDS")
                 _save_admins
                 echo -e "${GREEN}Admin group added.${NC}"
-                sudo docker compose restart
+                sudo docker compose down
+                sudo docker compose up --build -d
+                sudo docker image prune -f
                 sleep 1
                 ;;
             2)
@@ -260,7 +265,9 @@ _manage_admins() {
                 if [[ -n "$newc" ]]; then chatids[$idx]="$newc"; fi
                 _save_admins
                 echo -e "${GREEN}Admin group updated.${NC}"
-                sudo docker compose restart
+                sudo docker compose down
+                sudo docker compose up --build -d
+                sudo docker image prune -f
                 sleep 1
                 ;;
             3)
@@ -291,7 +298,9 @@ _manage_admins() {
                     chatids=("${chatids[@]}")
                     _save_admins
                     echo -e "${GREEN}Admin group deleted.${NC}"
-                    sudo docker compose restart
+                    sudo docker compose down
+                    sudo docker compose up --build -d
+                    sudo docker image prune -f
                 else
                     echo "Delete cancelled."
                 fi
@@ -332,12 +341,17 @@ show_management_menu() {
                     read -p "Enter your new Bot Token: " BOT_TOKEN
                     _set_env_var "BOT_TOKEN" "$BOT_TOKEN"
                     echo -e "${GREEN}Token updated. Restarting bot...${NC}"
-                    sudo docker compose restart
+                    sudo docker compose down
+                    sudo docker compose up --build -d
+                    sudo docker image prune -f
                     break
                     ;;
                 "Edit Panel URL")
                     while true; do
                         read -p "Enter your new Marzneshin Panel URL: " PANEL_URL
+                        PANEL_URL=$(echo "$PANEL_URL" | sed -E 's#(/dashboard/?)$##')
+                        PANEL_URL=$(echo "$PANEL_URL" | sed 's#/$##')
+
                         if [[ $PANEL_URL =~ ^https?:// ]]; then
                             break
                         else
@@ -346,7 +360,9 @@ show_management_menu() {
                     done
                     _set_env_var "PANEL_URL" "$PANEL_URL"
                     echo -e "${GREEN}Panel URL updated. Restarting bot...${NC}"
-                    sudo docker compose restart
+                    sudo docker compose down
+                    sudo docker compose up --build -d
+                    sudo docker image prune -f
                     break
                     ;;
                 "Manage Admin Groups")
