@@ -184,7 +184,7 @@ install_bot() {
     _prompt_for_yml
     _start_bot
     echo -e "${YELLOW}Installing management command to /usr/local/bin/${COMMAND_NAME}...${NC}"
-    sudo cp "$PROJECT_DIR/setup.sh" "/usr/local/bin/${COMMAND_NAME}"
+    sudo mv "$PROJECT_DIR/setup.sh" "/usr/local/bin/${COMMAND_NAME}"
     sudo chmod +x "/usr/local/bin/${COMMAND_NAME}"
     echo -e "\n${GREEN}Installation Complete!${NC}"
     echo -e "Manage your bot with: ${YELLOW}${COMMAND_NAME}${NC}"
