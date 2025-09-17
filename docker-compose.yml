@@ -1,0 +1,10 @@
+services:
+  bot:
+    build: .
+    container_name: sahra_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./config.yml:/app/config.yml
