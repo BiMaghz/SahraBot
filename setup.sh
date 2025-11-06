@@ -61,7 +61,7 @@ _prompt_for_env() {
     read -p "Enter your Bot Token: " BOT_TOKEN
     while true; do
         read -p "Enter your Marzneshin Panel URL (e.g., https://panel.example.com): " PANEL_URL
-        PANEL_URL=$(echo "$PANEL_URL" | sed -E 's#(/dashboard/?)$##')
+        PANEL_URL=$(echo "$PANEL_URL" | sed -E 's#(/.*)$##')
         PANEL_URL=$(echo "$PANEL_URL" | sed 's#/$##')
 
         if [[ $PANEL_URL =~ ^https?:// ]]; then
@@ -349,7 +349,7 @@ show_management_menu() {
                 "Edit Panel URL")
                     while true; do
                         read -p "Enter your new Marzneshin Panel URL: " PANEL_URL
-                        PANEL_URL=$(echo "$PANEL_URL" | sed -E 's#(/dashboard/?)$##')
+                        PANEL_URL=$(echo "$PANEL_URL" | sed -E 's#(/.*)$##')
                         PANEL_URL=$(echo "$PANEL_URL" | sed 's#/$##')
 
                         if [[ $PANEL_URL =~ ^https?:// ]]; then
