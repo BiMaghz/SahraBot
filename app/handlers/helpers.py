@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from html import escape
 from typing import List, Tuple
 
@@ -20,9 +21,12 @@ logger = logging.getLogger(__name__)
 async def _get_dashboard_content(
     api_client: MarzneshinAPI,
 ) -> Tuple[str, InlineKeyboardMarkup]:
-
-    traffic_stats = await api_client.get_system_traffic_stats()
-    user_stats = await api_client.get_system_users_stats()
+    
+    traffic_stats, user_stats, admin_info = await asyncio.gather(
+        api_client.get_system_traffic_stats(),
+        api_client.get_system_users_stats(),
+        api_client.get_current_admin()
+    )
 
     traffic_text = "📊 Traffic Usage: _Not Available_"
     if traffic_stats:
@@ -50,6 +54,11 @@ async def _get_dashboard_content(
     builder = InlineKeyboardBuilder()
     builder.button(text="👤 Create User", callback_data="panel:create_user")
     builder.button(text="👥 All Users", callback_data="panel:browse_users:all:0")
+
+    is_sudo_admin = admin_info and admin_info.is_sudo
+    if is_sudo_admin:
+        builder.button(text="🛰️ Nodes", callback_data="nodes:menu")
+
     builder.button(text="🔍 Search User", callback_data="panel:search_user")
     builder.button(text="✖️ Close", callback_data="panel:close")
     builder.adjust(1, 2, 1)
