@@ -6,7 +6,26 @@ import httpx
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
-# --- Pydantic Models for Data Structuring and Validation ---
+class AdminInfo(BaseModel):
+    id: int
+    username: str
+    is_sudo: bool
+
+class Node(BaseModel):
+    id: int
+    name: str
+    address: str
+    port: int
+    status: str
+    message: str
+    xray_version: Optional[str] = None
+
+class NodeList(BaseModel):
+    items: List[Node]
+    total: int
+    page: int
+    size: int
+    pages: int
 
 class UserService(BaseModel):
     id: int
@@ -25,14 +44,6 @@ class TrafficStats(BaseModel):
     step: int
     total: int
     usages: List[List[Optional[int]]]
-
-class AdminStats(BaseModel):
-    total: int
-
-class NodeStats(BaseModel):
-    total: int
-    healthy: int
-    unhealthy: int
 
 class User(BaseModel):
     id: int
@@ -129,8 +140,30 @@ class MarzneshinAPI:
         except httpx.RequestError as e:
             logging.error(f"Marzneshin API Request Error on {method} {endpoint}: {e}")
         return None
+    
+    async def get_current_admin(self) -> Optional[AdminInfo]:
+        response = await self._request("GET", "/api/admins/current")
+        return AdminInfo(**response.json()) if response else None
+    
+    async def get_nodes(
+        self,
+        status: Optional[str] = None,
+        name: Optional[str] = None,
+        page: int = 1,
+        size: int = 50
+    ) -> Optional[NodeList]:
+        params = {"page": page, "size": size}
+        if status:
+            params["status"] = status
+        if name:
+            params["name"] = name
+            
+        response = await self._request("GET", "/api/nodes", params=params)
+        return NodeList(**response.json()) if response else None
 
-    # --- Public API Methods ---
+    async def resync_node(self, node_id: int) -> bool:
+        response = await self._request("POST", f"/api/nodes/{node_id}/resync")
+        return response is not None and response.status_code == 200
 
     async def get_user(self, username: str) -> Optional[User]:
         response = await self._request("GET", f"/api/users/{username}")
