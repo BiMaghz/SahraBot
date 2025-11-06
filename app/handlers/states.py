@@ -26,3 +26,7 @@ class UserRenewalFSM(StatesGroup):
 class DeleteFlowFSM(StatesGroup):
     waiting_for_duration = State()
     confirm_delete_expired = State()
+
+class NodeFSM(StatesGroup):
+    menu = State()
+    monitoring_menu = State()
