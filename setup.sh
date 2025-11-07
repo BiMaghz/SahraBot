@@ -27,16 +27,12 @@ strip_quotes() {
 }
 
 _check_docker() {
-    if ! command -v docker &> /dev/null; then
-        echo -e "${YELLOW}Docker is not installed. Installing Docker...${NC}"
-        sudo apt-get update -y
-        sudo apt-get install -y docker.io
-        sudo systemctl start docker
-        sudo systemctl enable docker
-    fi
-    if ! docker compose version &> /dev/null; then
-        echo -e "${YELLOW}Docker Compose plugin not found. Installing...${NC}"
-        sudo apt-get install -y docker-compose-plugin
+    if ! command -v docker &>/dev/null; then
+        echo -e "${YELLOW}Docker not found. Installing Docker...${NC}"
+        sudo curl -fsSL https://get.docker.com | sh
+        echo -e "${GREEN}Docker installed successfully.${NC}"
+    else
+        echo -e "${GREEN}Docker is already installed.${NC}"
     fi
 }
 
@@ -59,9 +55,11 @@ _set_env_var() {
 _prompt_for_env() {
     echo -e "\n--- Core Configuration (.env) ---"
     read -p "Enter your Bot Token: " BOT_TOKEN
+
     while true; do
         read -p "Enter your Marzneshin Panel URL (e.g., https://panel.example.com): " PANEL_URL
-        PANEL_URL=$(echo "$PANEL_URL" | sed -E 's#(/.*)$##')
+
+        PANEL_URL=$(echo "$PANEL_URL" | sed -E 's#(https?://[^/]+).*#\1#')
         PANEL_URL=$(echo "$PANEL_URL" | sed 's#/$##')
 
         if [[ $PANEL_URL =~ ^https?:// ]]; then
@@ -70,6 +68,7 @@ _prompt_for_env() {
             echo -e "${RED}Invalid URL. Please include http:// or https://${NC}"
         fi
     done
+
     _set_env_var "BOT_TOKEN" "$BOT_TOKEN"
     _set_env_var "PANEL_URL" "$PANEL_URL"
     echo -e "${GREEN}.env file created/updated successfully.${NC}"
@@ -349,10 +348,11 @@ show_management_menu() {
                 "Edit Panel URL")
                     while true; do
                         read -p "Enter your new Marzneshin Panel URL: " PANEL_URL
-                        PANEL_URL=$(echo "$PANEL_URL" | sed -E 's#(/.*)$##')
-                        PANEL_URL=$(echo "$PANEL_URL" | sed 's#/$##')
+                        PANEL_URL=$(echo "$PANEL_URL" | xargs)
+                        PANEL_URL=$(echo "$PANEL_URL" | sed -E 's#(https?://[^/]+).*#\1#')
+                        PANEL_URL="${PANEL_URL%/}"
 
-                        if [[ $PANEL_URL =~ ^https?:// ]]; then
+                        if [[ "$PANEL_URL" =~ ^https?:// ]]; then
                             break
                         else
                             echo -e "${RED}Invalid URL. Please include http:// or https://${NC}"
