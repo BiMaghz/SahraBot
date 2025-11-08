@@ -103,8 +103,7 @@ class MarzneshinAPI:
             response.raise_for_status()
             token_data = response.json()
             self._token = token_data["access_token"]
-            # Default expiry to 1 hour if not provided
-            self._expires_at = time.time() + token_data.get("expires_in", 3600)
+            self._expires_at = time.time() + token_data.get("expires_in", 86400)
             logging.info("Marzneshin token obtained/refreshed successfully.")
             return self._token
         except httpx.HTTPStatusError as e:
