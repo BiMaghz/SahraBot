@@ -1,0 +1,12 @@
+services:
+  bot:
+    build: .
+    container_name: sahra_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${WEBHOOK_PORT}:${WEBHOOK_PORT}"
+    volumes:
+      - ./data:/app/data
+      - ./config.yml:/app/config.yml
