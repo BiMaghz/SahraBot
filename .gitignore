@@ -1,0 +1,13 @@
+.env
+config.yml
+
+__pycache__/
+*.pyc
+
+*.db
+*.db-journal
+
+bot.py.bak
+webhook.py
+
+redis_data
