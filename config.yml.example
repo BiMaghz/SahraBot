@@ -1,0 +1,11 @@
+# config.yml
+
+# A list of all bot admins and their panel credentials
+admin_config:
+  - chat_ids: [123456789]
+    panel_username: "root_user"
+    panel_password: "root_password"
+    
+  - chat_ids: [987654321, 111222333]
+    panel_username: "admin"
+    panel_password: "password"
